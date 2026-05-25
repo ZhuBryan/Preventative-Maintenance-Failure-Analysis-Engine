@@ -1,0 +1,5 @@
+# Optional quality upgrades.
+# Install these after the core requirements if your Python version supports them.
+sentence-transformers>=2.7.0
+hdbscan>=0.8.33
+anthropic>=0.34.0

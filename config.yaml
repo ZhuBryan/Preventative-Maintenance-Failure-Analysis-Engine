@@ -1,0 +1,43 @@
+# Map your Excel column headers to the logical fields the engine uses.
+# Set a value to null (or remove the line) if your sheet does not have that
+# field; the engine will skip it. `work_order_id` and `description` are the
+# only ones that must be present.
+columns:
+  work_order_id: WorkOrderID
+  asset_category: AssetCategory
+  equipment_type: EquipmentType
+  location: Location
+  trade: Trade
+  priority: Priority
+  description: Description
+  resolution_notes: ResolutionNotes
+
+# Sentence-transformer model used for both confidence scoring and clustering.
+# all-MiniLM-L6-v2 is small (~90MB), fast on CPU, and a solid default.
+embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+# Mismatch detection: cosine similarity between the embedded structured profile
+# and the embedded description. Anything below this is flagged for review.
+mismatch_threshold: 0.40
+
+# Weights used to combine the structured-profile embedding and the description
+# embedding into the signal that drives clustering. Must sum to 1.0.
+# Structured fields come from dropdowns and are reliable; the free-text
+# description is human-written and can be wrong, so it gets less weight.
+weights:
+  structured: 0.7
+  description: 0.3
+
+clustering:
+  # "hdbscan" finds the number of clusters automatically and is recommended.
+  # "kmeans" requires `n_clusters` below.
+  algorithm: hdbscan
+  min_cluster_size: 8       # used by hdbscan
+  n_clusters: 10            # used by kmeans
+
+labeling:
+  # If true and ANTHROPIC_API_KEY is set, clusters are labeled by Claude.
+  # If false (or the key is missing), a TF-IDF keyword fallback is used.
+  use_llm: true
+  model: claude-haiku-4-5
+  samples_per_cluster: 12
